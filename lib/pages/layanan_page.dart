@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/navigasi/app_routes.dart';
+import 'package:provider/provider.dart';
+
+import '../models/favorit_model.dart';
 
 class LayananPage extends StatelessWidget {
   const LayananPage({super.key});
@@ -24,6 +26,7 @@ class LayananPage extends StatelessWidget {
 
         body: TabBarView(
           children: [
+            // Tab Perizinan
             daftarLayanan(context, [
               {
                 'nama': 'Izin Usaha',
@@ -45,6 +48,7 @@ class LayananPage extends StatelessWidget {
               },
             ]),
 
+            // Tab Kesehatan
             daftarLayanan(context, [
               {
                 'nama': 'Puskesmas',
@@ -66,6 +70,7 @@ class LayananPage extends StatelessWidget {
               },
             ]),
 
+            // Tab Transportasi
             daftarLayanan(context, [
               {
                 'nama': 'Kartu Transportasi',
@@ -103,20 +108,41 @@ class LayananPage extends StatelessWidget {
       itemBuilder: (context, index) {
         final layanan = data[index];
 
+        final nama = layanan['nama']!;
+
         return ListTile(
           leading: const Icon(Icons.article),
 
-          title: Text(layanan['nama']!),
+          title: Text(nama),
 
           subtitle: Text(layanan['dinas']!),
 
-          trailing: const Icon(Icons.arrow_forward_ios),
+          // Tombol favorit
+          trailing: Consumer<FavoritModel>(
+            builder: (context, favorit, child) {
+              final aktif = favorit.isFavorit(nama);
 
-          // Membuka detail
+              return IconButton(
+                onPressed: () {
+                  if (aktif) {
+                    context.read<FavoritModel>().batalTandai(nama);
+                  } else {
+                    context.read<FavoritModel>().tandai(nama);
+                  }
+                },
+
+                icon: Icon(
+                  aktif ? Icons.star : Icons.star_border,
+                ),
+              );
+            },
+          ),
+
+          // Membuka halaman detail
           onTap: () async {
             final hasil = await Navigator.pushNamed(
               context,
-              '/detail',
+              '/detail-layanan',
               arguments: layanan,
             );
 
